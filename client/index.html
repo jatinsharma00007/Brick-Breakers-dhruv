@@ -87,6 +87,20 @@
             font-size: 36px;
             text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
         }
+
+        .lives {
+            font-size: 28px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .lives span {
+            animation: pulse 2s infinite;
+        }
     </style>
 </head>
 <body>
@@ -95,7 +109,7 @@
         
         <div class="game-info">
             <div class="score">Score: <span id="score">0</span></div>
-            <div class="lives">Lives: <span id="lives">3</span></div>
+            <div class="lives">Lives: <span id="hearts">❤️❤️❤️</span></div>
         </div>
 
         <canvas id="gameCanvas" width="800" height="600"></canvas>
@@ -143,8 +157,8 @@
             x: canvas.width / 2,
             y: canvas.height / 2,
             radius: 10,
-            dx: 3,
-            dy: -3,
+            dx: 2,
+            dy: -2,
             color: '#fff',
             trail: []
         };
@@ -196,8 +210,8 @@
         function resetBall() {
             ball.x = canvas.width / 2;
             ball.y = canvas.height / 2;
-            ball.dx = (Math.random() > 0.5 ? 1 : -1) * 3;
-            ball.dy = -3;
+            ball.dx = (Math.random() > 0.5 ? 1 : -1) * 2;
+            ball.dy = -2;
             ball.trail = [];
         }
 
@@ -362,6 +376,7 @@
             // Ball falls below paddle
             if (ball.y > canvas.height + ball.radius) {
                 lives--;
+                updateHeartsDisplay();
                 if (lives <= 0) {
                     gameState = 'gameOver';
                     showGameOver(false);
@@ -417,8 +432,17 @@
         }
 
         function drawBricks() {
+            const time = Date.now() * 0.005;
+            
             bricks.forEach(brick => {
                 if (!brick.visible) return;
+
+                // Animated glow effect
+                ctx.save();
+                ctx.shadowColor = brick.color;
+                ctx.shadowBlur = 10 + Math.sin(time + brick.x * 0.01) * 5;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
 
                 // Brick gradient
                 const gradient = ctx.createLinearGradient(brick.x, brick.y, brick.x, brick.y + brick.height);
@@ -432,6 +456,21 @@
                 ctx.strokeStyle = lightenColor(brick.color, 0.2);
                 ctx.lineWidth = 2;
                 ctx.strokeRect(brick.x, brick.y, brick.width, brick.height);
+                
+                ctx.restore();
+
+                // Draw points on brick with shadow
+                ctx.save();
+                ctx.shadowColor = '#000';
+                ctx.shadowBlur = 3;
+                ctx.shadowOffsetX = 1;
+                ctx.shadowOffsetY = 1;
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(brick.points + 'pts', brick.x + brick.width/2, brick.y + brick.height/2);
+                ctx.restore();
             });
         }
 
@@ -477,9 +516,21 @@
 
             // Update UI
             document.getElementById('score').textContent = score;
-            document.getElementById('lives').textContent = lives;
 
             requestAnimationFrame(gameLoop);
+        }
+
+        // Update hearts display based on lives
+        function updateHeartsDisplay() {
+            const heartsElement = document.getElementById('hearts');
+            let heartsStr = '';
+            for (let i = 0; i < lives; i++) {
+                heartsStr += '❤️';
+            }
+            for (let i = lives; i < 3; i++) {
+                heartsStr += '🖤';
+            }
+            heartsElement.textContent = heartsStr;
         }
 
         // Game control functions
@@ -487,6 +538,7 @@
             gameState = 'playing';
             score = 0;
             lives = 3;
+            updateHeartsDisplay();
             initBricks();
             resetBall();
             document.getElementById('gameStart').style.display = 'none';
