@@ -786,6 +786,13 @@
             offsetLeft: 35
         };
 
+        // Recalculate brick positioning based on current level
+        function updateBrickLayout() {
+            const config = levelConfigs[currentLevel];
+            const totalWidth = config.cols * (brickConfig.width + brickConfig.padding) - brickConfig.padding;
+            brickConfig.offsetLeft = (canvas.width - totalWidth) / 2;
+        }
+
         let bricks = [];
 
         // Particle system for effects
@@ -807,21 +814,25 @@
             // Update brick config for current level
             brickConfig.rows = config.rows;
             brickConfig.cols = config.cols;
+            updateBrickLayout();
             
             for (let row = 0; row < config.rows; row++) {
                 for (let col = 0; col < config.cols; col++) {
                     const shouldPlaceBrick = shouldPlaceBrickAt(row, col, config.pattern, config.rows, config.cols);
                     
                     if (shouldPlaceBrick) {
+                        const brickX = col * (brickConfig.width + brickConfig.padding) + brickConfig.offsetLeft;
+                        const brickY = row * (brickConfig.height + brickConfig.padding) + brickConfig.offsetTop;
+                        
                         bricks.push({
-                            x: col * (brickConfig.width + brickConfig.padding) + brickConfig.offsetLeft,
-                            y: row * (brickConfig.height + brickConfig.padding) + brickConfig.offsetTop,
-                            originalX: col * (brickConfig.width + brickConfig.padding) + brickConfig.offsetLeft,
+                            x: brickX,
+                            y: brickY,
+                            originalX: brickX,
                             width: brickConfig.width,
                             height: brickConfig.height,
                             color: colors[row % colors.length],
                             visible: true,
-                            points: (config.rows - row) * 10 * currentLevel,
+                            points: (config.rows - row) * 10 * Math.max(1, Math.floor(currentLevel / 5)),
                             moving: config.movingBricks,
                             moveDirection: Math.random() > 0.5 ? 1 : -1,
                             moveSpeed: config.movingBricks ? 0.5 + Math.random() * 0.5 : 0
@@ -864,6 +875,15 @@
         function resetBall() {
             ball.x = paddle.x + paddle.width / 2;
             ball.y = paddle.y - ball.radius - 5;
+            ball.dx = (Math.random() > 0.5 ? 1 : -1) * ballSpeed;
+            ball.dy = -ballSpeed;
+            ball.trail = [];
+        }
+
+        // Initialize ball at start of level
+        function initBall() {
+            ball.x = canvas.width / 2;
+            ball.y = canvas.height / 2;
             ball.dx = (Math.random() > 0.5 ? 1 : -1) * ballSpeed;
             ball.dy = -ballSpeed;
             ball.trail = [];
@@ -1214,16 +1234,22 @@
 
         // Game control functions
         function startGame() {
+            console.log('Starting game for level:', currentLevel);
             gameState = 'playing';
-            score = 0;
             const config = levelConfigs[currentLevel];
-            lives = config.lives;
+            
+            // Don't reset score when starting the game - only when selecting level
             ballSpeed = config.ballSpeed;
+            
+            // Ensure ball speed is properly set
+            ball.dx = (Math.random() > 0.5 ? 1 : -1) * ballSpeed;
+            ball.dy = -ballSpeed;
+            
             updateHeartsDisplay();
-            initBricks();
             resetBall();
             document.getElementById('gameStart').style.display = 'none';
             document.getElementById('gameOver').style.display = 'none';
+            console.log('Game started successfully');
         }
 
         function restartGame() {
@@ -1309,26 +1335,37 @@
 
         // Level selection functions
         function selectLevel(level) {
+            console.log('Selecting level:', level);
             currentLevel = level;
             const config = levelConfigs[level];
+            console.log('Level config:', config);
             
             // Apply level settings
             ballSpeed = config.ballSpeed;
             lives = config.lives;
             
-            // Show game container and hide home screen
+            // Hide all menu screens
             document.getElementById('homeScreen').style.display = 'none';
+            document.getElementById('difficultiesScreen').style.display = 'none';
+            document.getElementById('levelScreen').style.display = 'none';
+            
+            // Show game container
             document.querySelector('.game-container').style.display = 'block';
             
             // Show start screen for this level
             gameState = 'start';
             document.getElementById('gameStart').style.display = 'block';
+            document.getElementById('gameOver').style.display = 'none';
             
-            // Update UI
+            // Initialize level-specific settings
+            score = 0;
             updateHeartsDisplay();
+            initBricks();
+            initBall();
             
             // Update game title to show level
-            document.querySelector('.game-container h1').textContent = `🧱 Brick Breaker - ${config.name}`;
+            document.querySelector('.game-container h1').textContent = `🧱 Brick Breaker - Level ${level}: ${config.name}`;
+            console.log('Level initialized successfully');
         }
 
         function quitApplication() {
