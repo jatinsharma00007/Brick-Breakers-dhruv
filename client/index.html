@@ -47,8 +47,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(45deg, transparent 40%, rgba(135, 206, 250, 0.05) 50%, transparent 60%);
-            animation: thunder 8s infinite;
+            background: 
+                linear-gradient(45deg, transparent 30%, rgba(135, 206, 250, 0.08) 50%, transparent 70%),
+                linear-gradient(-45deg, transparent 40%, rgba(255, 255, 255, 0.05) 60%, transparent 80%);
+            animation: thunder 8s infinite, lightningRotate 20s linear infinite;
             z-index: -1;
         }
 
@@ -66,6 +68,113 @@
             5% { opacity: 0.4; transform: translateX(5px); }
             9%, 13% { opacity: 0.9; transform: translateX(10px); }
             11% { opacity: 0.2; transform: translateX(-5px); }
+        }
+
+        @keyframes lightningRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Animated background particles */
+        .home-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.3), transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(135, 206, 250, 0.4), transparent),
+                radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.2), transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(135, 206, 250, 0.3), transparent),
+                radial-gradient(2px 2px at 160px 30px, rgba(255, 255, 255, 0.2), transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            animation: sparkle 15s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes sparkle {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+            50% { transform: translateY(-10px) rotate(180deg); opacity: 0.5; }
+            100% { transform: translateY(0px) rotate(360deg); opacity: 1; }
+        }
+
+        /* Logo Container */
+        .logo-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* Logo Bricks Animation */
+        .logo-bricks {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            margin-top: 15px;
+            opacity: 0.8;
+        }
+
+        .brick-row {
+            display: flex;
+            gap: 3px;
+            justify-content: center;
+        }
+
+        .logo-brick {
+            width: 25px;
+            height: 12px;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1, #96CEB4, #FFEAA7);
+            background-size: 500% 500%;
+            border-radius: 2px;
+            animation: 
+                brickGlow 2s ease-in-out infinite alternate,
+                brickBreak 12s infinite,
+                brickColorShift 3s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .logo-brick:nth-child(1) { animation-delay: 0s; }
+        .logo-brick:nth-child(2) { animation-delay: 0.2s; }
+        .logo-brick:nth-child(3) { animation-delay: 0.4s; }
+        .logo-brick:nth-child(4) { animation-delay: 0.6s; }
+        .logo-brick:nth-child(5) { animation-delay: 0.8s; }
+
+        .brick-row:nth-child(2) .logo-brick { animation-delay: 1s; }
+        .brick-row:nth-child(2) .logo-brick:nth-child(2) { animation-delay: 1.2s; }
+        .brick-row:nth-child(2) .logo-brick:nth-child(3) { animation-delay: 1.4s; }
+        .brick-row:nth-child(2) .logo-brick:nth-child(4) { animation-delay: 1.6s; }
+        .brick-row:nth-child(2) .logo-brick:nth-child(5) { animation-delay: 1.8s; }
+
+        .brick-row:nth-child(3) .logo-brick { animation-delay: 2s; }
+        .brick-row:nth-child(3) .logo-brick:nth-child(2) { animation-delay: 2.2s; }
+        .brick-row:nth-child(3) .logo-brick:nth-child(3) { animation-delay: 2.4s; }
+        .brick-row:nth-child(3) .logo-brick:nth-child(4) { animation-delay: 2.6s; }
+        .brick-row:nth-child(3) .logo-brick:nth-child(5) { animation-delay: 2.8s; }
+
+        @keyframes brickGlow {
+            0% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
+            100% { box-shadow: 0 0 20px rgba(135, 206, 250, 0.6), 0 0 30px rgba(135, 206, 250, 0.4); }
+        }
+
+        @keyframes brickBreak {
+            0%, 85% { transform: scale(1) rotate(0deg); opacity: 1; }
+            87% { transform: scale(1.1) rotate(2deg); opacity: 0.8; }
+            89% { transform: scale(0.9) rotate(-2deg); opacity: 0.6; }
+            91% { transform: scale(1.05) rotate(1deg); opacity: 0.4; }
+            93% { transform: scale(0.8) rotate(-1deg); opacity: 0.2; }
+            95% { transform: scale(0.3) rotate(10deg); opacity: 0; }
+            97%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        @keyframes brickColorShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .game-container {
@@ -357,13 +466,58 @@
             font-size: 64px;
             font-weight: bold;
             margin-bottom: 20px;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-            animation: glow 2s ease-in-out infinite alternate;
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 1),
+                0 0 20px rgba(135, 206, 250, 0.8),
+                0 0 40px rgba(135, 206, 250, 0.6),
+                0 0 60px rgba(135, 206, 250, 0.4),
+                0 0 80px rgba(255, 255, 255, 0.2);
+            animation: titleGlow 3s ease-in-out infinite alternate, titleShake 8s infinite;
+            position: relative;
+            letter-spacing: 3px;
+            color: #ffffff;
         }
 
-        @keyframes glow {
-            from { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
-            to { text-shadow: 0 0 30px rgba(135, 206, 250, 0.8), 0 0 40px rgba(135, 206, 250, 0.6); }
+        .home-title::before {
+            content: '⚡ BRICK BREAKER ⚡';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            color: rgba(255, 255, 255, 0.1);
+            text-shadow: none;
+            animation: titleFlash 8s infinite;
+            z-index: -1;
+        }
+
+        @keyframes titleGlow {
+            0% { 
+                text-shadow: 
+                    0 0 10px rgba(255, 255, 255, 1),
+                    0 0 20px rgba(135, 206, 250, 0.8),
+                    0 0 40px rgba(135, 206, 250, 0.6);
+            }
+            100% { 
+                text-shadow: 
+                    0 0 20px rgba(255, 255, 255, 1),
+                    0 0 40px rgba(135, 206, 250, 1),
+                    0 0 60px rgba(135, 206, 250, 0.8),
+                    0 0 80px rgba(135, 206, 250, 0.6),
+                    0 0 100px rgba(255, 255, 255, 0.4);
+            }
+        }
+
+        @keyframes titleShake {
+            0%, 90%, 100% { transform: translateX(0); }
+            91%, 93% { transform: translateX(-2px); }
+            92%, 94% { transform: translateX(2px); }
+        }
+
+        @keyframes titleFlash {
+            0%, 85%, 100% { opacity: 0; }
+            87%, 89% { opacity: 0.8; }
+            88% { opacity: 0.2; }
         }
 
         .home-subtitle {
@@ -537,13 +691,63 @@
                 padding: 12px 24px;
                 font-size: 16px;
             }
+
+            .logo-brick {
+                width: 20px;
+                height: 10px;
+            }
+
+            .logo-bricks {
+                gap: 2px;
+            }
+
+            .brick-row {
+                gap: 2px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .home-title {
+                font-size: 36px;
+                letter-spacing: 1px;
+            }
+
+            .logo-brick {
+                width: 15px;
+                height: 8px;
+            }
         }
     </style>
 </head>
 <body>
     <!-- Home Screen -->
     <div id="homeScreen" class="home-screen">
-        <h1 class="home-title">⚡ BRICK BREAKER ⚡</h1>
+        <div class="logo-container">
+            <h1 class="home-title">⚡ BRICK BREAKER ⚡</h1>
+            <div class="logo-bricks">
+                <div class="brick-row">
+                    <div class="logo-brick"></div>
+                    <div class="logo-brick"></div>
+                    <div class="logo-brick"></div>
+                    <div class="logo-brick"></div>
+                    <div class="logo-brick"></div>
+                </div>
+                <div class="brick-row">
+                    <div class="logo-brick"></div>
+                    <div class="logo-brick"></div>
+                    <div class="logo-brick"></div>
+                    <div class="logo-brick"></div>
+                    <div class="logo-brick"></div>
+                </div>
+                <div class="brick-row">
+                    <div class="logo-brick"></div>
+                    <div class="logo-brick"></div>
+                    <div class="logo-brick"></div>
+                    <div class="logo-brick"></div>
+                    <div class="logo-brick"></div>
+                </div>
+            </div>
+        </div>
         <p class="home-subtitle">Welcome to the Ultimate Challenge</p>
         
         <div class="home-buttons">
