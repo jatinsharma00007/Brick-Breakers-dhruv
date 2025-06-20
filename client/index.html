@@ -101,6 +101,101 @@
         .lives span {
             animation: pulse 2s infinite;
         }
+
+        .settings-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            min-width: 200px;
+            color: white;
+            font-size: 14px;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .settings-menu.collapsed {
+            transform: translateX(180px);
+        }
+
+        .settings-toggle {
+            position: absolute;
+            left: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border: none;
+            border-radius: 20px 0 0 20px;
+            padding: 10px 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .settings-item {
+            margin-bottom: 12px;
+        }
+
+        .settings-item label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .settings-slider {
+            width: 100%;
+            background: #333;
+            border-radius: 5px;
+            height: 20px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .settings-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+
+        .settings-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+            border: none;
+        }
+
+        .menu-button {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .menu-button:hover {
+            background: #45a049;
+        }
+
+        .menu-button.danger {
+            background: #f44336;
+        }
+
+        .menu-button.danger:hover {
+            background: #da190b;
+        }
     </style>
 </head>
 <body>
@@ -131,6 +226,27 @@
             <p>Final Score: <span id="finalScore">0</span></p>
             <button class="restart-btn" onclick="restartGame()">Play Again</button>
         </div>
+
+        <!-- Settings Menu -->
+        <div id="settingsMenu" class="settings-menu collapsed">
+            <button class="settings-toggle" onclick="toggleSettings()">⚙️</button>
+            
+            <div class="settings-item">
+                <label>Ball Speed: <span id="speedValue">2</span></label>
+                <input type="range" class="settings-slider" id="speedSlider" min="1" max="6" value="2" step="0.5">
+            </div>
+            
+            <div class="settings-item">
+                <label>Music Volume: <span id="volumeValue">50</span>%</label>
+                <input type="range" class="settings-slider" id="volumeSlider" min="0" max="100" value="50">
+            </div>
+            
+            <div class="settings-item">
+                <button class="menu-button" onclick="pauseGame()">⏸️ Pause Game</button>
+                <button class="menu-button" onclick="goToHome()">🏠 Home Screen</button>
+                <button class="menu-button danger" onclick="quitGame()">❌ Quit Game</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -139,9 +255,12 @@
         const ctx = canvas.getContext('2d');
 
         // Game state
-        let gameState = 'start'; // 'start', 'playing', 'gameOver', 'win'
+        let gameState = 'start'; // 'start', 'playing', 'gameOver', 'win', 'paused'
         let score = 0;
         let lives = 3;
+        let ballSpeed = 2;
+        let musicVolume = 0.5;
+        let backgroundMusic = null;
 
         // Game objects
         const paddle = {
@@ -210,8 +329,8 @@
         function resetBall() {
             ball.x = canvas.width / 2;
             ball.y = canvas.height / 2;
-            ball.dx = (Math.random() > 0.5 ? 1 : -1) * 2;
-            ball.dy = -2;
+            ball.dx = (Math.random() > 0.5 ? 1 : -1) * ballSpeed;
+            ball.dy = -ballSpeed;
             ball.trail = [];
         }
 
@@ -514,6 +633,16 @@
             drawBall();
             drawParticles();
 
+            // Draw pause overlay if paused
+            if (gameState === 'paused') {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#fff';
+                ctx.font = '48px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('PAUSED', canvas.width / 2, canvas.height / 2);
+            }
+
             // Update UI
             document.getElementById('score').textContent = score;
 
@@ -547,6 +676,98 @@
 
         function restartGame() {
             startGame();
+        }
+
+        // Settings menu functions
+        function toggleSettings() {
+            const menu = document.getElementById('settingsMenu');
+            menu.classList.toggle('collapsed');
+        }
+
+        function pauseGame() {
+            if (gameState === 'playing') {
+                gameState = 'paused';
+            } else if (gameState === 'paused') {
+                gameState = 'playing';
+            }
+        }
+
+        function goToHome() {
+            gameState = 'start';
+            document.getElementById('gameStart').style.display = 'block';
+            document.getElementById('gameOver').style.display = 'none';
+            document.getElementById('settingsMenu').classList.add('collapsed');
+        }
+
+        function quitGame() {
+            if (confirm('Are you sure you want to quit the game?')) {
+                gameState = 'start';
+                score = 0;
+                lives = 3;
+                updateHeartsDisplay();
+                document.getElementById('gameStart').style.display = 'block';
+                document.getElementById('gameOver').style.display = 'none';
+                document.getElementById('settingsMenu').classList.add('collapsed');
+            }
+        }
+
+        // Initialize settings controls
+        function initializeSettings() {
+            const speedSlider = document.getElementById('speedSlider');
+            const volumeSlider = document.getElementById('volumeSlider');
+            const speedValue = document.getElementById('speedValue');
+            const volumeValue = document.getElementById('volumeValue');
+
+            speedSlider.addEventListener('input', function() {
+                ballSpeed = parseFloat(this.value);
+                speedValue.textContent = ballSpeed;
+                // Update current ball speed if game is running
+                if (gameState === 'playing') {
+                    const currentSpeed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+                    const ratio = ballSpeed / currentSpeed;
+                    ball.dx *= ratio;
+                    ball.dy *= ratio;
+                }
+            });
+
+            volumeSlider.addEventListener('input', function() {
+                musicVolume = this.value / 100;
+                volumeValue.textContent = this.value;
+                if (backgroundMusic) {
+                    backgroundMusic.volume = musicVolume;
+                }
+            });
+        }
+
+        // Initialize background music
+        function initializeAudio() {
+            // Create a simple background music using Web Audio API
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(220, audioContext.currentTime);
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(musicVolume * 0.1, audioContext.currentTime);
+                
+                // Simple melody loop
+                let noteIndex = 0;
+                const notes = [220, 246, 261, 293, 329, 349, 391, 440];
+                
+                setInterval(() => {
+                    if (gameState === 'playing' && musicVolume > 0) {
+                        oscillator.frequency.setValueAtTime(notes[noteIndex], audioContext.currentTime);
+                        noteIndex = (noteIndex + 1) % notes.length;
+                    }
+                }, 500);
+                
+            } catch (e) {
+                console.log('Audio not supported');
+            }
         }
 
         function showGameOver(isWin) {
@@ -604,6 +825,8 @@
 
         // Initialize game
         initBricks();
+        initializeSettings();
+        initializeAudio();
         gameLoop();
     </script>
 </body>
