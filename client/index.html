@@ -106,32 +106,51 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             border-radius: 10px;
             padding: 15px;
             min-width: 200px;
             color: white;
             font-size: 14px;
             z-index: 100;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            transform: translateX(250px);
+            opacity: 0;
+            visibility: hidden;
         }
 
-        .settings-menu.collapsed {
-            transform: translateX(180px);
+        .settings-menu.open {
+            transform: translateX(0);
+            opacity: 1;
+            visibility: visible;
         }
 
         .settings-toggle {
-            position: absolute;
-            left: -40px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.8);
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
             color: white;
             border: none;
-            border-radius: 20px 0 0 20px;
-            padding: 10px 8px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 20px;
+            z-index: 101;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-toggle:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: scale(1.1);
+        }
+
+        .settings-toggle.menu-open {
+            right: 240px;
         }
 
         .settings-item {
@@ -227,10 +246,11 @@
             <button class="restart-btn" onclick="restartGame()">Play Again</button>
         </div>
 
+        <!-- Settings Toggle Button -->
+        <button id="settingsToggle" class="settings-toggle" onclick="toggleSettings()">⚙️</button>
+
         <!-- Settings Menu -->
-        <div id="settingsMenu" class="settings-menu collapsed">
-            <button class="settings-toggle" onclick="toggleSettings()">⚙️</button>
-            
+        <div id="settingsMenu" class="settings-menu">
             <div class="settings-item">
                 <label>Ball Speed: <span id="speedValue">2</span></label>
                 <input type="range" class="settings-slider" id="speedSlider" min="1" max="6" value="2" step="0.5">
@@ -242,7 +262,7 @@
             </div>
             
             <div class="settings-item">
-                <button class="menu-button" onclick="pauseGame()">⏸️ Pause Game</button>
+                <button class="menu-button" onclick="resumeGame()">▶️ Resume Game</button>
                 <button class="menu-button" onclick="goToHome()">🏠 Home Screen</button>
                 <button class="menu-button danger" onclick="quitGame()">❌ Quit Game</button>
             </div>
@@ -261,6 +281,7 @@
         let ballSpeed = 2;
         let musicVolume = 0.5;
         let backgroundMusic = null;
+        let previousGameState = 'start';
 
         // Game objects
         const paddle = {
@@ -681,14 +702,40 @@
         // Settings menu functions
         function toggleSettings() {
             const menu = document.getElementById('settingsMenu');
-            menu.classList.toggle('collapsed');
+            const toggle = document.getElementById('settingsToggle');
+            
+            if (menu.classList.contains('open')) {
+                // Close menu
+                menu.classList.remove('open');
+                toggle.classList.remove('menu-open');
+                
+                // Resume game if it was playing before
+                if (previousGameState === 'playing') {
+                    gameState = 'playing';
+                }
+            } else {
+                // Open menu
+                menu.classList.add('open');
+                toggle.classList.add('menu-open');
+                
+                // Auto-pause game if currently playing
+                if (gameState === 'playing') {
+                    previousGameState = 'playing';
+                    gameState = 'paused';
+                } else {
+                    previousGameState = gameState;
+                }
+            }
         }
 
-        function pauseGame() {
-            if (gameState === 'playing') {
-                gameState = 'paused';
-            } else if (gameState === 'paused') {
+        function resumeGame() {
+            if (gameState === 'paused') {
                 gameState = 'playing';
+                // Close settings menu
+                const menu = document.getElementById('settingsMenu');
+                const toggle = document.getElementById('settingsToggle');
+                menu.classList.remove('open');
+                toggle.classList.remove('menu-open');
             }
         }
 
@@ -696,7 +743,12 @@
             gameState = 'start';
             document.getElementById('gameStart').style.display = 'block';
             document.getElementById('gameOver').style.display = 'none';
-            document.getElementById('settingsMenu').classList.add('collapsed');
+            
+            // Close settings menu
+            const menu = document.getElementById('settingsMenu');
+            const toggle = document.getElementById('settingsToggle');
+            menu.classList.remove('open');
+            toggle.classList.remove('menu-open');
         }
 
         function quitGame() {
@@ -707,7 +759,12 @@
                 updateHeartsDisplay();
                 document.getElementById('gameStart').style.display = 'block';
                 document.getElementById('gameOver').style.display = 'none';
-                document.getElementById('settingsMenu').classList.add('collapsed');
+                
+                // Close settings menu
+                const menu = document.getElementById('settingsMenu');
+                const toggle = document.getElementById('settingsToggle');
+                menu.classList.remove('open');
+                toggle.classList.remove('menu-open');
             }
         }
 
