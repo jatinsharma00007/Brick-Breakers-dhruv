@@ -80,7 +80,7 @@
             border: 3px solid #fff;
             border-radius: 10px;
             box-shadow: 0 0 30px rgba(255, 255, 255, 0.3), 0 0 60px rgba(100, 100, 255, 0.2);
-            background: linear-gradient(to bottom, #000428, #004e92);
+            background: #000;
             max-width: 100%;
             height: auto;
         }
@@ -335,10 +335,190 @@
         .menu-button.danger:hover {
             background: #da190b;
         }
+
+        /* Home Screen Styles */
+        .home-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .home-title {
+            font-size: 64px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 30px rgba(135, 206, 250, 0.8), 0 0 40px rgba(135, 206, 250, 0.6); }
+        }
+
+        .home-subtitle {
+            font-size: 24px;
+            margin-bottom: 40px;
+            opacity: 0.8;
+        }
+
+        .level-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .level-button {
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .level-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(135, 206, 250, 0.3);
+            border-color: rgba(135, 206, 250, 0.6);
+        }
+
+        .level-button.locked {
+            background: linear-gradient(45deg, #333, #555);
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .level-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .level-description {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .level-stats {
+            font-size: 12px;
+            opacity: 0.6;
+        }
+
+        .home-buttons {
+            margin-top: 40px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .home-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .home-btn.primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .home-btn.primary:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+
+        .home-btn.danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .home-btn.danger:hover {
+            background: #da190b;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .home-title {
+                font-size: 48px;
+            }
+            
+            .home-subtitle {
+                font-size: 18px;
+            }
+            
+            .level-selection {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .home-btn {
+                padding: 12px 24px;
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="game-container">
+    <!-- Home Screen -->
+    <div id="homeScreen" class="home-screen">
+        <h1 class="home-title">⚡ BRICK BREAKER ⚡</h1>
+        <p class="home-subtitle">Choose Your Challenge</p>
+        
+        <div class="level-selection">
+            <div class="level-button" onclick="selectLevel(1)">
+                <div class="level-title">🟢 EASY</div>
+                <div class="level-description">Perfect for beginners</div>
+                <div class="level-stats">• 5 rows of bricks<br>• Normal ball speed<br>• 5 lives</div>
+            </div>
+            
+            <div class="level-button" onclick="selectLevel(2)">
+                <div class="level-title">🟡 MEDIUM</div>
+                <div class="level-description">Moderate challenge</div>
+                <div class="level-stats">• 6 rows of bricks<br>• Faster ball speed<br>• 4 lives</div>
+            </div>
+            
+            <div class="level-button" onclick="selectLevel(3)">
+                <div class="level-title">🔴 HARD</div>
+                <div class="level-description">For skilled players</div>
+                <div class="level-stats">• 8 rows of bricks<br>• Fast ball speed<br>• 3 lives</div>
+            </div>
+            
+            <div class="level-button" onclick="selectLevel(4)">
+                <div class="level-title">⚫ EXTREME</div>
+                <div class="level-description">Ultimate challenge</div>
+                <div class="level-stats">• 10 rows of bricks<br>• Very fast ball<br>• 2 lives</div>
+            </div>
+        </div>
+        
+        <div class="home-buttons">
+            <button class="home-btn danger" onclick="quitApplication()">❌ Quit Game</button>
+        </div>
+    </div>
+
+    <div class="game-container" style="display: none;">
         <h1>🧱 Brick Breaker</h1>
         
         <div class="game-info">
@@ -420,13 +600,22 @@
         resizeCanvas();
 
         // Game state
-        let gameState = 'start'; // 'start', 'playing', 'gameOver', 'win', 'paused'
+        let gameState = 'home'; // 'home', 'start', 'playing', 'gameOver', 'win', 'paused'
         let score = 0;
         let lives = 3;
         let ballSpeed = 2;
         let musicVolume = 0.5;
         let backgroundMusic = null;
         let previousGameState = 'start';
+        let currentLevel = 1;
+
+        // Level configurations
+        const levelConfigs = {
+            1: { rows: 5, ballSpeed: 2, lives: 5, name: "EASY" },
+            2: { rows: 6, ballSpeed: 2.5, lives: 4, name: "MEDIUM" },
+            3: { rows: 8, ballSpeed: 3, lives: 3, name: "HARD" },
+            4: { rows: 10, ballSpeed: 3.5, lives: 2, name: "EXTREME" }
+        };
 
         // Game objects
         const paddle = {
@@ -471,12 +660,16 @@
             space: false
         };
 
-        // Initialize bricks
+        // Initialize bricks based on current level
         function initBricks() {
             bricks = [];
+            const config = levelConfigs[currentLevel];
             const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'];
             
-            for (let row = 0; row < brickConfig.rows; row++) {
+            // Update brick config for current level
+            brickConfig.rows = config.rows;
+            
+            for (let row = 0; row < config.rows; row++) {
                 for (let col = 0; col < brickConfig.cols; col++) {
                     bricks.push({
                         x: col * (brickConfig.width + brickConfig.padding) + brickConfig.offsetLeft,
@@ -485,7 +678,7 @@
                         height: brickConfig.height,
                         color: colors[row % colors.length],
                         visible: true,
-                        points: (brickConfig.rows - row) * 10 // Higher rows give more points
+                        points: (config.rows - row) * 10 * currentLevel // Higher rows and levels give more points
                     });
                 }
             }
@@ -832,7 +1025,9 @@
         function startGame() {
             gameState = 'playing';
             score = 0;
-            lives = 3;
+            const config = levelConfigs[currentLevel];
+            lives = config.lives;
+            ballSpeed = config.ballSpeed;
             updateHeartsDisplay();
             initBricks();
             resetBall();
@@ -885,8 +1080,10 @@
         }
 
         function goToHome() {
-            gameState = 'start';
-            document.getElementById('gameStart').style.display = 'block';
+            gameState = 'home';
+            document.getElementById('homeScreen').style.display = 'flex';
+            document.querySelector('.game-container').style.display = 'none';
+            document.getElementById('gameStart').style.display = 'none';
             document.getElementById('gameOver').style.display = 'none';
             
             // Close settings menu
@@ -898,11 +1095,13 @@
 
         function quitGame() {
             if (confirm('Are you sure you want to quit the game?')) {
-                gameState = 'start';
+                gameState = 'home';
                 score = 0;
                 lives = 3;
                 updateHeartsDisplay();
-                document.getElementById('gameStart').style.display = 'block';
+                document.getElementById('homeScreen').style.display = 'flex';
+                document.querySelector('.game-container').style.display = 'none';
+                document.getElementById('gameStart').style.display = 'none';
                 document.getElementById('gameOver').style.display = 'none';
                 
                 // Close settings menu
@@ -910,6 +1109,38 @@
                 const toggle = document.getElementById('settingsToggle');
                 menu.classList.remove('open');
                 toggle.classList.remove('menu-open');
+            }
+        }
+
+        // Level selection functions
+        function selectLevel(level) {
+            currentLevel = level;
+            const config = levelConfigs[level];
+            
+            // Apply level settings
+            ballSpeed = config.ballSpeed;
+            lives = config.lives;
+            
+            // Show game container and hide home screen
+            document.getElementById('homeScreen').style.display = 'none';
+            document.querySelector('.game-container').style.display = 'block';
+            
+            // Show start screen for this level
+            gameState = 'start';
+            document.getElementById('gameStart').style.display = 'block';
+            
+            // Update UI
+            updateHeartsDisplay();
+            
+            // Update game title to show level
+            document.querySelector('.game-container h1').textContent = `🧱 Brick Breaker - ${config.name}`;
+        }
+
+        function quitApplication() {
+            if (confirm('Are you sure you want to quit the application?')) {
+                // In a web browser, we can't actually close the tab/window
+                // So we'll show a message
+                alert('Thanks for playing Brick Breaker! You can close this tab to quit.');
             }
         }
 
