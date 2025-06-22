@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import os from "os";
 
 const app = express();
 app.use(express.json());
@@ -36,34 +37,57 @@ app.use((req, res, next) => {
   next();
 });
 
+function getLocalIPv4() {
+  const interfaces = os.networkInterfaces();
+  for (const iface of Object.values(interfaces)) {
+    if (!iface) continue;
+    for (const addr of iface) {
+      if (addr.family === "IPv4" && !addr.internal) {
+        return addr.address;
+      }
+    }
+  }
+  return "localhost";
+}
+
 (async () => {
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
     res.status(status).json({ message });
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client
-  const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+  const DEFAULT_PORT = 8081;
+  const HOST = "0.0.0.0";
+
+  const startServer = (port: number) => {
+    const s = server.listen(port, HOST, () => {
+      const actualPort = (s.address() as any).port;
+      const lan = getLocalIPv4();
+      log(`\n✅ Server running on:`);
+      log(`   → http://localhost:${actualPort}`);
+      log(`   → http://${lan}:${actualPort}`);
+    });
+
+    s.on("error", (err: NodeJS.ErrnoException) => {
+      if (err.code === "EADDRINUSE") {
+        log(`Port ${port} in use. Trying another port...`);
+        startServer(0);
+      } else {
+        log(`Server error: ${err.message}`);
+        process.exit(1);
+      }
+    });
+  };
+
+  startServer(DEFAULT_PORT);
 })();
